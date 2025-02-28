@@ -1,15 +1,10 @@
-package com.biofit.controller;
-
-import com.biofit.model.User;
-import com.biofit.service.UserService;
+package com.example.biofit.controller;
+import com.example.biofit.model.User;
+import com.example.biofit.security.JwtTokenProvider;
+import com.example.biofit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-class LoginRequest {
-    public String email;
-    public String password;
-}
 
 @RestController
 @RequestMapping("/api")
@@ -18,11 +13,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public <LoginRequest> ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         User user = userService.login(loginRequest.email, loginRequest.password);
         if (user != null) {
-            return ResponseEntity.ok(user);
+            // Gerar o token JWT
+            String token = jwtTokenProvider.generateToken(user.getEmail());
+
+            // Retornar o token como resposta
+            return ResponseEntity.ok(new LoginResponse(token));
         }
         return ResponseEntity.status(401).body("Email ou senha inválidos");
     }
@@ -45,7 +47,6 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
-
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {

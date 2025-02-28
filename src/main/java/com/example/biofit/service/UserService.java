@@ -1,7 +1,7 @@
-package com.biofit.service;
+package com.example.biofit.service;
 
-import com.biofit.model.User;
-import com.biofit.repository.UserRepository;
+import com.example.biofit.model.User;
+import com.example.biofit.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,6 @@ public class UserService {
             if (updatedData.getPassword() != null && !updatedData.getPassword().isEmpty()) {
                 user.setPassword(passwordEncoder.encode(updatedData.getPassword()));
             }
-            user.setName(updatedData.getName());
             user.setActive(updatedData.isActive());
             return userRepository.save(user);
         }

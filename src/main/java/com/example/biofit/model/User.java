@@ -1,4 +1,4 @@
-package com.biofit.model;
+package com.example.biofit.model;
 
 import jakarta.persistence.*;
 
@@ -15,8 +15,6 @@ public class User {
 
     @Column(nullable = false)
     private String password;
-
-    private String name;
 
     private boolean active = true;
 
@@ -50,14 +48,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public boolean isActive() {
