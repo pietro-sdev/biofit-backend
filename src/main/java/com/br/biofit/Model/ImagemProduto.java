@@ -1,5 +1,6 @@
 package com.br.biofit.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,5 +31,6 @@ public class ImagemProduto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "produto_id")
+    @JsonIgnore
     private Produto produto;
 }
