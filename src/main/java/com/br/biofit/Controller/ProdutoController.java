@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -188,6 +189,87 @@ public class ProdutoController {
             return ResponseEntity.ok("Imagem removida com sucesso.");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Erro ao remover imagem.");
+        }
+    }
+    
+    /**
+     * Endpoint para estoquista atualizar apenas a quantidade de um produto
+     */
+    @PatchMapping("/{id}/atualizar-quantidade")
+    public ResponseEntity<?> atualizarQuantidadeProduto(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request,
+            @RequestHeader("Authorization") String token) {
+        
+        try {
+            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+            if (!"ESTOQUISTA".equals(role) && !"ADMIN".equals(role)) {
+                return ResponseEntity.status(403).body("Acesso negado. Apenas estoquistas e administradores podem alterar quantidades.");
+            }
+
+            Integer novaQuantidade = request.get("quantidade");
+            if (novaQuantidade == null) {
+                return ResponseEntity.badRequest().body("O campo 'quantidade' é obrigatório.");
+            }
+
+            Produto produtoAtualizado = produtoService.atualizarQuantidade(id, novaQuantidade);
+            return ResponseEntity.ok(produtoAtualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao atualizar quantidade: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Endpoint para registrar entrada de produtos no estoque
+     */
+    @PatchMapping("/{id}/adicionar-estoque")
+    public ResponseEntity<?> adicionarAoEstoque(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request,
+            @RequestHeader("Authorization") String token) {
+        
+        try {
+            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+            if (!"ESTOQUISTA".equals(role) && !"ADMIN".equals(role)) {
+                return ResponseEntity.status(403).body("Acesso negado. Apenas estoquistas e administradores podem adicionar ao estoque.");
+            }
+
+            Integer quantidade = request.get("quantidade");
+            if (quantidade == null || quantidade <= 0) {
+                return ResponseEntity.badRequest().body("É necessário informar uma quantidade válida maior que zero.");
+            }
+
+            Produto produtoAtualizado = produtoService.adicionarAoEstoque(id, quantidade);
+            return ResponseEntity.ok(produtoAtualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao adicionar ao estoque: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Endpoint para registrar saída de produtos do estoque
+     */
+    @PatchMapping("/{id}/remover-estoque")
+    public ResponseEntity<?> removerDoEstoque(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request,
+            @RequestHeader("Authorization") String token) {
+        
+        try {
+            String role = jwtUtil.extractRole(token.replace("Bearer ", ""));
+            if (!"ESTOQUISTA".equals(role) && !"ADMIN".equals(role)) {
+                return ResponseEntity.status(403).body("Acesso negado. Apenas estoquistas e administradores podem remover do estoque.");
+            }
+
+            Integer quantidade = request.get("quantidade");
+            if (quantidade == null || quantidade <= 0) {
+                return ResponseEntity.badRequest().body("É necessário informar uma quantidade válida maior que zero.");
+            }
+
+            Produto produtoAtualizado = produtoService.removerDoEstoque(id, quantidade);
+            return ResponseEntity.ok(produtoAtualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao remover do estoque: " + e.getMessage());
         }
     }
 }
